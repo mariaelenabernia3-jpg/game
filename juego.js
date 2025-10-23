@@ -86,6 +86,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const singularityMultiplier = 1 + (gameState.singularityPoints * 0.05);
         dom['singularity-points-display'].textContent = `Puntos Sing.: ${gameState.singularityPoints} (Bono x${singularityMultiplier.toFixed(2)})`;
         dom['meta-data-display'].textContent = `Metadatos: ${gameState.metaData} (+${formatNumber(gameState.metaData * 0.02 * singularityMultiplier * 100)}% Bonus)`;
+
+        // Lógica de la barra de progreso de la historia
+        const allStoryKeys = Object.keys(STORY_MILESTONES);
+        const nextMilestoneKey = allStoryKeys.find(key => !gameState.unlockedStoryIds.has(key));
+
+        if (nextMilestoneKey) {
+            const nextMilestone = STORY_MILESTONES[nextMilestoneKey];
+            const nextMilestoneIndex = allStoryKeys.indexOf(nextMilestoneKey);
+            const prevMilestoneUnlockReq = nextMilestoneIndex > 0 
+                ? STORY_MILESTONES[allStoryKeys[nextMilestoneIndex - 1]].unlock 
+                : 0;
+            const fragmentsNeededForNext = nextMilestone.unlock - prevMilestoneUnlockReq;
+            const currentProgress = gameState.stats.totalFragments - prevMilestoneUnlockReq;
+            const percentage = Math.max(0, Math.min(100, (currentProgress / fragmentsNeededForNext) * 100));
+            
+            dom['story-progress-bar'].style.width = `${percentage}%`;
+            dom['story-progress-label'].textContent = `Sincronizando Archivo... (${percentage.toFixed(1)}%)`;
+        } else {
+            dom['story-progress-bar'].style.width = '100%';
+            dom['story-progress-label'].textContent = 'Sincronización Completa';
+        }
     }
 
     function renderAllPanels() {
