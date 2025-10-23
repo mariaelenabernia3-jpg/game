@@ -71,10 +71,16 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.fragments += fragmentsEarned;
         gameState.stats.totalFragments += fragmentsEarned;
         coreHeat = Math.max(0, coreHeat - HEAT_COOLDOWN_RATE_PER_TICK);
-        if (Math.random() < 0.0015 && dom['random-event-container'].childElementCount === 0) spawnRandomEvent();
+        
+        // --- CAMBIO AQUÍ: La anomalía solo aparece si no hay paneles abiertos ---
+        if (Math.random() < 0.0015 && dom['random-event-container'].childElementCount === 0 && !isAnyPanelVisible()) {
+            spawnRandomEvent();
+        }
+
         checkStoryUnlocks();
         checkAchievements();
         updateUI();
+        updateVisibleUpgradesPanel();
     }
     
     // --- RENDERIZADO Y UI ---
@@ -87,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
         dom['singularity-points-display'].textContent = `Puntos Sing.: ${gameState.singularityPoints} (Bono x${singularityMultiplier.toFixed(2)})`;
         dom['meta-data-display'].textContent = `Metadatos: ${gameState.metaData} (+${formatNumber(gameState.metaData * 0.02 * singularityMultiplier * 100)}% Bonus)`;
 
-        // Lógica de la barra de progreso de la historia
         const allStoryKeys = Object.keys(STORY_MILESTONES);
         const nextMilestoneKey = allStoryKeys.find(key => !gameState.unlockedStoryIds.has(key));
 
@@ -107,6 +112,18 @@ document.addEventListener('DOMContentLoaded', () => {
             dom['story-progress-bar'].style.width = '100%';
             dom['story-progress-label'].textContent = 'Sincronización Completa';
         }
+    }
+    
+    function updateVisibleUpgradesPanel() {
+        if (!dom['upgrades-panel'].classList.contains('visible')) {
+            return;
+        }
+        dom['upgrades-list'].querySelectorAll('.buy-upgrade-button').forEach(button => {
+            const key = button.dataset.key;
+            if (!key || !UPGRADES[key]) return;
+            const cost = calculateUpgradeCost(key);
+            button.disabled = gameState.fragments < cost;
+        });
     }
 
     function renderAllPanels() {
@@ -185,7 +202,29 @@ document.addEventListener('DOMContentLoaded', () => {
     function checkUpgradeMilestones(key, isSilent) { const level = gameState.upgradeLevels[key]; UPGRADES[key].milestones.forEach(m => { const id = `${key}-${m}`; if (level >= m && !gameState.unlockedMilestones.has(id)) { gameState.unlockedMilestones.add(id); const multKey = (key === 'heatSink') ? 'maxHeat' : (key === 'clickAlgorithm') ? 'clickPower' : key; gameState.multipliers[multKey] *= 2; if (!isSilent) showToast(`Hito: ¡${UPGRADES[key].name} x2 Potencia!`); } }); }
     function performPrestige() { const gain = calculatePrestigeGain(); if (gain > 0 && confirm(`¿Reiniciar para obtener ${gain} Metadatos?`)) { const p = { singularityPoints: gameState.singularityPoints, stats: { ...gameState.stats, prestigeCount: gameState.stats.prestigeCount + 1, totalMetaData: gameState.stats.totalMetaData + gain }, achievements: gameState.achievements, }; const meta = gameState.metaData + gain; gameState = getInitialGameState(); Object.assign(gameState, p); gameState.metaData = meta; saveGame(); window.location.reload(); } }
     function performAscension() { const gain = calculateAscensionGain(); if (gain > 0 && confirm(`¿ASCENDER? Esto reiniciará TODO a cambio de ${gain} Puntos de Singularidad.`)) { const p = { stats: { ...gameState.stats, ascensionCount: gameState.stats.ascensionCount + 1 }, achievements: gameState.achievements, }; const sing = gameState.singularityPoints + gain; gameState = getInitialGameState(); Object.assign(gameState, p); gameState.singularityPoints = sing; saveGame(); window.location.reload(); } }
-    function spawnRandomEvent() { const a = document.createElement('div'); a.className = 'data-anomaly'; a.style.top = `${Math.random()*80+10}%`; a.style.left = `${Math.random()*80+10}%`; a.onclick = () => { const r = (fragmentsPerSecond*300)+(clickPower*50); gameState.fragments += r; showToast(`Anomalía: +${formatNumber(r)} fragmentos`); a.remove(); }; dom['random-event-container'].appendChild(a); setTimeout(() => a.remove(), 8000); }
+    
+    function spawnRandomEvent() { 
+        const a = document.createElement('div'); 
+        a.className = 'data-anomaly'; 
+        a.style.top = `${Math.random()*80+10}%`; 
+        a.style.left = `${Math.random()*80+10}%`; 
+        a.onclick = () => { 
+            // --- CAMBIO AQUÍ: Recompensa de la anomalía reducida ---
+            const r = (fragmentsPerSecond * 60) + (clickPower * 15); 
+            gameState.fragments += r; 
+            showToast(`Anomalía: +${formatNumber(r)} fragmentos`); 
+            a.remove(); 
+        }; 
+        dom['random-event-container'].appendChild(a); 
+        setTimeout(() => a.remove(), 8000); 
+    }
+
+    // --- NUEVA FUNCIÓN: Comprueba si algún panel está abierto ---
+    function isAnyPanelVisible() {
+        const panels = ['upgrades', 'achievements', 'archives', 'system', 'stats', 'options'];
+        return panels.some(p => dom[`${p}-panel`].classList.contains('visible'));
+    }
+
     function formatNumber(n) { return Math.floor(n).toLocaleString('es-ES'); }
     const calculatePrestigeGain = () => gameState.stats.totalFragments >= 1e6 ? Math.floor(Math.pow(gameState.stats.totalFragments / 1e6, 0.5)) : 0;
     const calculateAscensionGain = () => gameState.stats.totalMetaData >= 1e3 ? Math.floor(Math.pow(gameState.stats.totalMetaData / 1e3, 0.5)) : 0;
