@@ -72,7 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.stats.totalFragments += fragmentsEarned;
         coreHeat = Math.max(0, coreHeat - HEAT_COOLDOWN_RATE_PER_TICK);
         
-        // --- CAMBIO AQUÍ: La anomalía solo aparece si no hay paneles abiertos ---
         if (Math.random() < 0.0015 && dom['random-event-container'].childElementCount === 0 && !isAnyPanelVisible()) {
             spawnRandomEvent();
         }
@@ -160,7 +159,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const panels = ['upgrades', 'achievements', 'archives', 'system', 'stats', 'options'];
         panels.forEach(p => {
-            dom[`${p}-button`].onclick = () => { renderAllPanels(); dom[`${p}-panel`].classList.add('visible'); };
+            // --- CAMBIO AQUÍ: Se llama a removeActiveAnomaly() al abrir un panel ---
+            dom[`${p}-button`].onclick = () => {
+                removeActiveAnomaly(); // Elimina la bolita si está activa
+                renderAllPanels(); 
+                dom[`${p}-panel`].classList.add('visible'); 
+            };
             dom[`close-${p}-button`].onclick = () => dom[`${p}-panel`].classList.remove('visible');
         });
         
@@ -209,7 +213,6 @@ document.addEventListener('DOMContentLoaded', () => {
         a.style.top = `${Math.random()*80+10}%`; 
         a.style.left = `${Math.random()*80+10}%`; 
         a.onclick = () => { 
-            // --- CAMBIO AQUÍ: Recompensa de la anomalía reducida ---
             const r = (fragmentsPerSecond * 60) + (clickPower * 15); 
             gameState.fragments += r; 
             showToast(`Anomalía: +${formatNumber(r)} fragmentos`); 
@@ -219,7 +222,15 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => a.remove(), 8000); 
     }
 
-    // --- NUEVA FUNCIÓN: Comprueba si algún panel está abierto ---
+    // --- NUEVA FUNCIÓN AÑADIDA ---
+    // Elimina la "bolita" (anomalía) si existe en la pantalla
+    function removeActiveAnomaly() {
+        const anomaly = dom['random-event-container'].querySelector('.data-anomaly');
+        if (anomaly) {
+            anomaly.remove();
+        }
+    }
+
     function isAnyPanelVisible() {
         const panels = ['upgrades', 'achievements', 'archives', 'system', 'stats', 'options'];
         return panels.some(p => dom[`${p}-panel`].classList.contains('visible'));
