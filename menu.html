@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Archivista Cósmico - Menú</title>
+    <link rel="stylesheet" href="menu.css">
+</head>
+<body>
+
+    <!-- Contenedor Principal del Menú -->
+    <div class="menu-container">
+        <header class="title-container">
+            <h1>El Archivista Cósmico<span class="cursor">_</span></h1>
+        </header>
+
+        <main class="button-wrapper">
+            <button id="start-button" class="main-button">Iniciar Protocolo</button>
+            <button id="options-button" class="secondary-button">Opciones</button>
+            <button id="credits-button" class="secondary-button">Créditos</button>
+        </main>
+
+        <footer class="footer-container">
+            <p>Un juego de DZM Studios</p>
+        </footer>
+    </div>
+
+    <!-- Panel de Opciones (Oculto por defecto) -->
+    <div id="options-panel" class="panel">
+        <div class="panel-content">
+            <h2>Opciones</h2>
+            <div class="option-item">
+                <p>Música</p>
+                <button id="music-toggle-button" class="toggle-button">Activada</button>
+            </div>
+            <div class="option-item">
+                <p>Efectos de Sonido</p>
+                <button id="sfx-toggle-button" class="toggle-button">Activados</button>
+            </div>
+            <hr>
+            <div class="option-item">
+                <p>Borrar todo el progreso. Esta acción no se puede deshacer.</p>
+                <button id="reset-progress-button" class="danger-button">Borrar Datos</button>
+            </div>
+            <button class="close-panel-button">Volver</button>
+        </div>
+    </div>
+
+    <!-- Panel de Créditos (Oculto por defecto) -->
+    <div id="credits-panel" class="panel">
+        <div class="panel-content">
+            <h2>Créditos</h2>
+            <p><strong>Diseño y Desarrollo:</strong></p>
+            <p>DZM Studios</p>
+            <br>
+            <p><strong>Concepto Original:</strong></p>
+            <!-- AQUÍ ESTÁ EL CAMBIO -->
+            <p>DZM Studios</p>
+            <br>
+            <p>Hecho con ❤️ y código.</p>
+            <button class="close-panel-button">Volver</button>
+        </div>
+    </div>
+
+    <!-- Elementos de Audio -->
+    <audio id="background-music" loop src="audio/Archivar y Preservar.mp3"></audio>
+    <audio id="click-sound" src="audio/electronic-hit-98242.mp3"></audio>
+
+    <script src="menu.js"></script>
+</body>
+</html>

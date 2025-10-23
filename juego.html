@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Archivista Cósmico</title>
+    <link rel="stylesheet" href="juego.css">
+</head>
+<body>
+
+    <div id="game-wrapper">
+        <!-- Contenedor principal del juego -->
+        <div id="game-container">
+            <header id="stats-container">
+                <p id="singularity-points-display" class="meta-data-text"></p>
+                <p id="meta-data-display" class="meta-data-text"></p>
+                <h1 id="fragment-count">0</h1>
+                <p id="fragments-per-second">0 / s</p>
+                <div id="story-progress-container"><div id="story-progress-bar"></div></div>
+                <p id="story-progress-label">Sincronizando Archivo...</p>
+            </header>
+            
+            <main id="core-container">
+                <div id="random-event-container"></div>
+                <div id="data-core" role="button" aria-label="Generar Fragmento"></div>
+                <div id="heat-bar-container"><div id="heat-bar-fill"></div></div>
+                <div id="click-feedback-container"></div>
+            </main>
+            
+            <nav id="controls-container">
+                <button id="upgrades-button">⚙️ Mejoras</button>
+                <button id="achievements-button">🏆 Logros</button>
+                <button id="archives-button">📖 Archivos</button>
+                <button id="system-button">🌌 Sistema</button>
+                <button id="stats-button">📊 Stats</button>
+                <button id="options-button">🔧 Opciones</button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- PANELES Y MODALES -->
+    <div id="upgrades-panel" class="panel"><button id="close-upgrades-button" class="close-button-x">X</button><h2>Mejoras de Procesamiento</h2><div id="upgrades-list" class="panel-list"></div></div>
+    <div id="archives-panel" class="panel"><button id="close-archives-button" class="close-button-x">X</button><h2>Archivos de Memoria</h2><div id="archives-list" class="panel-list"></div></div>
+    <div id="achievements-panel" class="panel"><button id="close-achievements-button" class="close-button-x">X</button><h2>Registro de Logros</h2><div id="achievements-list" class="panel-list"></div></div>
+    <div id="stats-panel" class="panel"><button id="close-stats-button" class="close-button-x">X</button><h2>Análisis de Sesión</h2><div id="stats-list" class="panel-list"></div></div>
+    
+    <div id="options-panel" class="panel">
+        <button id="close-options-button" class="close-button-x">X</button>
+        <h2>Opciones del Sistema</h2>
+        <div class="options-container">
+            <div class="option-item"><label for="music-volume">Música:</label><input type="range" id="music-volume" min="0" max="1" step="0.05" class="slider"></div>
+            <div class="option-item"><label for="sfx-volume">Efectos:</label><input type="range" id="sfx-volume" min="0" max="1" step="0.05" class="slider"></div>
+            <hr>
+            <button id="manual-save-button" class="action-button">Guardar Partida</button>
+            <button id="wipe-save-button" class="danger-button">Borrar Progreso</button>
+        </div>
+    </div>
+
+    <div id="system-panel" class="panel">
+        <button id="close-system-button" class="close-button-x">X</button>
+        <div class="panel-list">
+            <div id="prestige-section">
+                <h2>Big Bang (Prestigio)</h2>
+                <p>Reinicia para ganar Metadatos y potenciar la producción permanentemente.</p>
+                <div id="prestige-status-available" style="display: none;"><p>Al reiniciar, obtendrás:</p><h3 id="prestige-gain-display" class="highlight-text">0 Metadatos</h3></div>
+                <div id="prestige-status-unavailable"><p class="requirement-text">Necesitas 1,000,000 fragmentos totales para reiniciar.</p></div>
+                <button id="prestige-button" class="action-button">Reiniciar Big Bang</button>
+            </div>
+            <hr>
+            <div id="ascension-section">
+                <h2>Horizonte de Sucesos (Ascensión)</h2>
+                <p>Reinicia TODO (incl. Metadatos) por Puntos de Singularidad que mejoran drásticamente los Metadatos.</p>
+                <div id="ascension-status-available" style="display: none;"><p>Al Ascender, obtendrás:</p><h3 id="ascension-gain-display" class="highlight-text">0 Puntos de Singularidad</h3></div>
+                <div id="ascension-status-unavailable"><p class="requirement-text">Se requieren 1,000 Metadatos totales para Ascender.</p></div>
+                <button id="ascension-button" class="danger-button">Cruzar el Horizonte</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales -->
+    <div id="story-modal" class="modal-overlay"><div class="modal-content"><button id="close-story-modal-button" class="close-button-x">X</button><h3 id="story-modal-title"></h3><p id="story-modal-text"></p><hr><p id="story-modal-reward" class="reward-text"></p></div></div>
+    <div id="offline-modal" class="modal-overlay"><div class="modal-content"><button id="close-offline-modal-button" class="close-button-x">X</button><h3>Protocolo de Reactivación</h3><p>Mientras estabas desconectado...</p><h2 id="offline-fragments-earned" class="highlight-text"></h2><p>han sido añadidos a tus archivos.</p></div></div>
+    <div id="notification-toast" class="toast"></div>
+    <div id="awakening-overlay" class="visible"><p id="awakening-text"></p></div>
+    
+    <!-- Audio -->
+    <audio id="game-music" loop src="audio/fondojuego.mp3"></audio>
+    <audio id="upgrade-sound" src="audio/level-up-enhancement-8-bit-retro-sound-effect-153002.mp3"></audio>
+    <script src="juego.js"></script>
+</body>
+</html>

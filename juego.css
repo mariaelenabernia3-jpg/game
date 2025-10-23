@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+
+:root {
+    --color-background: #000000;
+    --color-text: #0bff76;
+    --color-highlight: #ffffff;
+    --color-core: #0bdeff;
+    --glow-color: rgba(11, 222, 255, 0.75);
+    --heat-color: #ff4800;
+    --danger-color: #ff4800;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: 'Roboto Mono', monospace;
+    background-color: var(--color-background);
+    color: var(--color-text);
+    overflow: hidden;
+    -webkit-user-select: none; -ms-user-select: none; user-select: none;
+    background-image: 
+        linear-gradient(rgba(11, 255, 118, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(11, 255, 118, 0.1) 1px, transparent 1px);
+    background-size: 30px 30px;
+}
+
+#game-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100dvh;
+}
+
+#game-container {
+    width: 100%;
+    max-width: 450px;
+    height: 100%;
+    max-height: 800px;
+    background-color: #000;
+    border: 2px solid var(--color-text);
+    box-shadow: 0 0 15px rgba(11, 255, 118, 0.4);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+#stats-container { padding: 0.5rem 1rem; text-align: center; border-bottom: 1px solid var(--color-text); }
+#core-container { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
+#controls-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; padding: 0.5rem; background-color: #111; border-top: 1px solid var(--color-text); }
+
+.meta-data-text { color: var(--color-core); text-shadow: 0 0 5px var(--glow-color); margin: 0 0 0.25rem 0; font-weight: bold; height: 1em; font-size: 0.9rem; }
+#fragment-count { font-size: 2.2rem; margin: 0; color: var(--color-highlight); text-shadow: 0 0 10px var(--color-highlight); }
+#fragments-per-second { font-size: 1rem; margin: 0 0 0.5rem 0; }
+.highlight-text { color: var(--color-core); text-shadow: 0 0 10px var(--glow-color); font-size: 2rem; text-align: center; margin: 1rem 0; }
+
+#data-core { width: 150px; height: 150px; background-color: var(--color-core); border-radius: 50%; cursor: pointer; box-shadow: 0 0 20px var(--glow-color), inset 0 0 15px rgba(255,255,255,0.5); animation: pulse 3s infinite ease-in-out; transition: all 0.2s ease; }
+#data-core:active { transform: scale(0.95); box-shadow: 0 0 35px var(--glow-color), inset 0 0 15px rgba(255,255,255,0.5); }
+#data-core.overheated { background-color: #555; animation: none; cursor: not-allowed; filter: grayscale(80%); }
+@keyframes pulse { 50% { transform: scale(1.05); } }
+#heat-bar-container { width: 150px; height: 15px; background-color: #222; border: 1px solid #888; margin-top: 1rem; }
+#heat-bar-fill { width: 0%; height: 100%; background-color: var(--heat-color); transition: width 0.1s linear; box-shadow: 0 0 10px var(--heat-color); }
+#story-progress-container { width: 100%; margin: 0.5rem auto 0; height: 10px; background-color: #222; border: 1px solid var(--color-text); }
+#story-progress-bar { width: 0%; height: 100%; background-color: var(--color-text); transition: width 0.5s ease; }
+#story-progress-label { font-size: 0.8rem; margin-top: 0.25rem; }
+
+#controls-container button { font-family: inherit; font-size: 0.9rem; background: none; border: 1px solid var(--color-text); color: var(--color-text); padding: 0.75rem 0.25rem; cursor: pointer; }
+#controls-container button:disabled { color: #555; border-color: #555; cursor: not-allowed; }
+.action-button, .danger-button, .buy-upgrade-button { font-family: inherit; font-size: 1rem; padding: 0.75rem; cursor: pointer; margin-top: 0.5rem; transition: all 0.2s; border: 1px solid; width: 100%;}
+.action-button { border-color: var(--color-text); color: var(--color-text); background: none; }
+.action-button:hover:not(:disabled) { background-color: var(--color-text); color: var(--color-background); }
+.danger-button { border-color: var(--danger-color); color: var(--danger-color); background: none; }
+.danger-button:hover:not(:disabled) { background-color: rgba(255, 72, 0, 0.2); color: #fff; box-shadow: 0 0 10px var(--danger-color); }
+.buy-upgrade-button { border-color: var(--color-text); color: var(--color-text); background: none; }
+.action-button:disabled, .danger-button:disabled, .buy-upgrade-button:disabled { border-color: #555; color: #555; cursor: not-allowed; background: none !important; box-shadow: none !important; }
+
+.panel { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; transform: translateY(100%); transition: transform 0.4s ease-in-out; z-index: 10; text-align: center; padding: 1rem;}
+.panel.visible { transform: translateY(0); }
+.panel h2 { margin: 2rem 0 1.5rem 0; }
+.panel-list { height: calc(100% - 100px); overflow-y: auto; text-align: left; padding: 0 5px;}
+.close-button-x { position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--color-text); font-size: 1.5rem; cursor: pointer; z-index: 5; }
+
+.upgrade-item { display: flex; justify-content: space-between; align-items: center; background-color: #1a1a1a; border: 1px solid var(--color-text); padding: 0.75rem; margin-bottom: 0.75rem; }
+.upgrade-info { text-align: left; margin-right: 1rem;}
+.upgrade-info h4, .archive-item h4, .achievement-item h4 { margin: 0 0 0.25rem 0; color: var(--color-highlight); }
+.upgrade-info p, .archive-item p, .achievement-item p { margin: 0; font-size: 0.8rem; color: #ccc; }
+.archive-item { background-color: #1a1a1a; border: 1px solid #555; color: #555; padding: 1rem; margin-bottom: 0.75rem; cursor: not-allowed; text-align: left;}
+.archive-item.unlocked { border-color: var(--color-text); color: var(--color-text); cursor: pointer; }
+.achievement-item { background-color: #1a1a1a; border-left: 3px solid #555; padding: 0.75rem; margin-bottom: 0.75rem; opacity: 0.6; text-align: left;}
+.achievement-item.unlocked { border-left-color: var(--color-core); opacity: 1; }
+.achievement-item.unlocked h4 { color: var(--color-core); }
+#stats-list p { background: #1a1a1a; padding: 0.75rem; border-left: 2px solid var(--color-text); margin-bottom: 0.5rem; text-align: left; }
+#stats-list span { color: var(--color-highlight); font-weight: bold; float: right; }
+.options-container { text-align: left; }
+.option-item { display: flex; justify-content: space-between; align-items: center; margin: 1rem 0; }
+.slider { width: 60%; }
+
+#click-feedback-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
+.click-feedback { position: absolute; font-size: 1.5rem; font-weight: bold; color: var(--color-highlight); animation: float-up 1.5s forwards; pointer-events: none; transform: translateX(-50%); }
+@keyframes float-up { to { opacity: 0; transform: translate(-50%, -80px); } }
+#random-event-container { position: absolute; width: 100%; height: 100%; z-index: 50; pointer-events: none; }
+.data-anomaly { position: absolute; width: 50px; height: 50px; background: radial-gradient(circle, #ff00ff, #8a2be2); border-radius: 50%; cursor: pointer; box-shadow: 0 0 15px #ff00ff; animation: float-around 8s infinite alternate ease-in-out, pulse-anomaly 1.5s infinite; pointer-events: all; }
+@keyframes float-around { from { transform: translate(0, 0); } to { transform: translate(40px, -50px); } }
+@keyframes pulse-anomaly { 50% { transform: scale(1.1); } }
+
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+.modal-overlay.visible { opacity: 1; pointer-events: auto; }
+.modal-content { background-color: #111; border: 1px solid var(--color-text); padding: 1.5rem; width: 90%; max-width: 500px; }
+#awakening-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; display: flex; justify-content: center; align-items: center; z-index: 250; opacity: 1; transition: opacity 2s ease-in-out; }
+#awakening-overlay:not(.visible) { opacity: 0; pointer-events: none; }
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: var(--color-core); color: var(--color-background); padding: 1rem; border-radius: 5px; z-index: 300; opacity: 0; transition: all 0.5s; pointer-events: none; font-weight: bold; }
+.toast.show { opacity: 1; bottom: 40px; }
