@@ -112,3 +112,8 @@ body {
 #awakening-overlay:not(.visible) { opacity: 0; pointer-events: none; }
 .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: var(--color-core); color: var(--color-background); padding: 1rem; border-radius: 5px; z-index: 300; opacity: 0; transition: all 0.5s; pointer-events: none; font-weight: bold; }
 .toast.show { opacity: 1; bottom: 40px; }
+
+/* --- REGLA AÑADIDA PARA OCULTAR LA ANOMALÍA --- */
+.hidden-by-panel {
+    display: none !important;
+}

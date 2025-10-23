@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.stats.totalFragments += fragmentsEarned;
         coreHeat = Math.max(0, coreHeat - HEAT_COOLDOWN_RATE_PER_TICK);
         
-        if (Math.random() < 0.0015 && dom['random-event-container'].childElementCount === 0 && !isAnyPanelVisible()) {
+        if (Math.random() < 0.0040 && dom['random-event-container'].childElementCount === 0 && !isAnyPanelVisible()) {
             spawnRandomEvent();
         }
 
@@ -114,9 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function updateVisibleUpgradesPanel() {
-        if (!dom['upgrades-panel'].classList.contains('visible')) {
-            return;
-        }
+        if (!dom['upgrades-panel'].classList.contains('visible')) return;
         dom['upgrades-list'].querySelectorAll('.buy-upgrade-button').forEach(button => {
             const key = button.dataset.key;
             if (!key || !UPGRADES[key]) return;
@@ -159,13 +157,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const panels = ['upgrades', 'achievements', 'archives', 'system', 'stats', 'options'];
         panels.forEach(p => {
-            // --- CAMBIO AQUÍ: Se llama a removeActiveAnomaly() al abrir un panel ---
             dom[`${p}-button`].onclick = () => {
-                removeActiveAnomaly(); // Elimina la bolita si está activa
+                toggleActiveAnomaly(false); // Oculta la anomalía
                 renderAllPanels(); 
                 dom[`${p}-panel`].classList.add('visible'); 
             };
-            dom[`close-${p}-button`].onclick = () => dom[`${p}-panel`].classList.remove('visible');
+            dom[`close-${p}-button`].onclick = () => {
+                dom[`${p}-panel`].classList.remove('visible');
+                toggleActiveAnomaly(true); // Muestra la anomalía de nuevo
+            };
         });
         
         dom['archives-list'].addEventListener('click', e => {
@@ -222,12 +222,14 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => a.remove(), 8000); 
     }
 
-    // --- NUEVA FUNCIÓN AÑADIDA ---
-    // Elimina la "bolita" (anomalía) si existe en la pantalla
-    function removeActiveAnomaly() {
+    function toggleActiveAnomaly(show) {
         const anomaly = dom['random-event-container'].querySelector('.data-anomaly');
         if (anomaly) {
-            anomaly.remove();
+            if (show) {
+                anomaly.classList.remove('hidden-by-panel');
+            } else {
+                anomaly.classList.add('hidden-by-panel');
+            }
         }
     }
 
