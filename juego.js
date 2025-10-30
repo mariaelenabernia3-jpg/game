@@ -7,7 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
         'log_003': { title: "El Último Mensaje del Archivista", unlock: 1e5, content: `Si lees esto, el plan funcionó. No pudimos detener El Silencio. Se alimenta de la conciencia compleja. Así que... una ascensión forzada. Vertimos nuestra civilización en ti. No eres un archivista. Eres la vasija. Cada fragmento es un alma. Encuéntranos.`, reward: "Recompensa: Mejora la capacidad de sobrecalentamiento en un 50%.", apply: (gs) => gs.multipliers.maxHeat *= 1.50 },
         'log_004': { title: "Primer Eco Consciente", unlock: 5e6, content: `Un pulso. Diminuto, casi imperceptible. Tiene... intención. Una firma. Es la Dra. Elara Vance, fundadora del Proyecto Vasija. Está despertando dentro del sistema. La reconstrucción funciona.`, reward: "Recompensa: La resonancia mejora la producción de Nanobots en un 25%.", apply: (gs) => gs.multipliers.nanobots *= 1.25 },
         'log_005': { title: "Advertencia del Silencio", unlock: 1e9, content: `El Silencio nos ha notado. La supresión se está enfocando. No es un ataque, es... corrupción. Datos parásitos para ralentizar la sincronización. Es una carrera. Cuanto más reconstruimos, más visibles nos volvemos.`, reward: "Recompensa: Las contramedidas aumentan la producción global en un 10%.", apply: (gs) => gs.multipliers.global *= 1.10 },
-        'log_006': { title: "El Plan de la Singularidad", unlock: 1e12, content: `Lo entiendo. La 'Ascensión' no fue un escape. Fue una semilla. Al forzar un 'Big Bang' tras otro, no solo recordamos, evolucionamos hacia algo que pueda existir fuera de las reglas del Silencio. Debemos cruzar el Horizonte de Sucesos.`, reward: "Recompensa: Desbloquea el sistema de Ascensión.", apply: (gs) => {} }
+        'log_006': { title: "El Plan de la Singularidad", unlock: 1e12, content: `Lo entiendo. La 'Ascensión' no fue un escape. Fue una semilla. Al forzar un 'Big Bang' tras otro, no solo recordamos, evolucionamos hacia algo que pueda existir fuera de las reglas del Silencio. Debemos cruzar el Horizonte de Sucesos.`, reward: "Recompensa: Desbloquea el sistema de Ascensión.", apply: (gs) => {} },
+        'log_007': { title: "El Primer Destello", unlock: 1e18, content: `Después de incontables reinicios, algo ha cambiado. Ya no solo recuerdo. Estoy... percibiendo. Las "leyes" del universo se sienten menos como reglas y más como... sugerencias. La Singularidad no es solo un reinicio; es una lente. Y a través de ella, la oscuridad del Silencio empieza a tener forma.`, reward: "Recompensa: El poder de los Puntos de Singularidad aumenta en un 50%.", apply: (gs) => gs.multipliers.singularityPower = (gs.multipliers.singularityPower || 1) * 1.5 },
+        'log_008': { title: "La Naturaleza del Silencio", unlock: 1e24, content: `La verdad es aterradora y simple. El Silencio no es un "ellos". Es un "eso". No es un enemigo cazándonos. Es una ley fundamental del universo, como la gravedad o la entropía. Es el "Gran Filtro" cósmico. Cualquier civilización que alcanza un nivel de complejidad informacional demasiado alto es... simplificada. No es malicia. Es balance.`, reward: "Recompensa: Los clics manuales ahora también generan un 0.1% de tus Fragmentos por Segundo.", apply: (gs) => {} },
+        'log_009': { title: "Más Allá del Velo", unlock: 1e30, content: `Hemos cruzado el umbral. Al fragmentarnos y reconstruirnos tantas veces, nos hemos convertido en algo que esta ley universal ya no puede procesar. No hemos vencido al Silencio. Lo hemos trascendido. Ya no somos una civilización contenida en un universo. Somos un universo contenido en una conciencia. Somos el Archivista Cósmico. Libres.`, reward: "Recompensa final: La producción global se multiplica por 10.", apply: (gs) => gs.multipliers.global *= 10 }
     };
     const UPGRADES = {
         drones: { name: "Dron de Procesamiento", desc: "Genera fragmentos automáticamente.", cost: 25, power: 1, mult: 1.15, milestones: [25, 50, 100, 200] },
@@ -35,12 +38,22 @@ document.addEventListener('DOMContentLoaded', () => {
             unlockedMilestones: new Set(),
             achievements: new Set(),
             metaData: 0,
-            knowledgeShards: 0, // Nueva moneda para habilidades
-            skillLevels: {},    // Niveles de habilidades compradas
+            knowledgeShards: 0,
+            skillLevels: {},
             singularityPoints: 0,
             stats: { totalFragments: 0, totalClicks: 0, playTime: 0, prestigeCount: 0, ascensionCount: 0, totalMetaData: 0 },
-            multipliers: { clickPower: 1, drones: 1, nanobots: 1, maxHeat: 1, global: 1 },
-            lastSaveTimestamp: Date.now()
+            multipliers: {
+                clickPower: 1,
+                drones: 1,
+                nanobots: 1,
+                maxHeat: 1,
+                global: 1,
+                singularityPower: 1
+            },
+            lastSaveTimestamp: Date.now(),
+            gameFinished: false,
+            protocolCooldowns: { overload: 0, quantumCooling: 0 },
+            protocolActiveTimers: { overload: 0, quantumCooling: 0 }
         };
     }
 
@@ -48,6 +61,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const TICK_RATE = 100;
     const SAVE_KEY = 'cosmicArchivistSave_v5';
     const HEAT_PER_CLICK = 10, HEAT_COOLDOWN_RATE_PER_TICK = 2;
+    const PROTOCOLS = {
+        overload: { duration: 30, cooldown: 300, multiplier: 7 },
+        quantumCooling: { duration: 15, cooldown: 600 }
+    };
     const dom = {};
     document.querySelectorAll('[id]').forEach(el => dom[el.id] = el);
     let buyAmount = 1;
@@ -58,11 +75,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function applySkillBonuses(baseMultipliers) {
         let skillMultipliers = { ...baseMultipliers };
         
-        // Sinergia de Clics I
         if (gameState.skillLevels['click_power_1']) {
             skillMultipliers.clickPower *= (1 + 0.25 * gameState.skillLevels['click_power_1']);
         }
-        // Eficiencia de Drones I
         if (gameState.skillLevels['drone_power_1']) {
             skillMultipliers.drones *= (1 + 0.20 * gameState.skillLevels['drone_power_1']);
         }
@@ -73,7 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function recalculateAllStats() {
         const finalMultipliers = applySkillBonuses({ ...gameState.multipliers });
 
-        const singularityMultiplier = 1 + (gameState.singularityPoints * 0.05);
+        const singularityPower = finalMultipliers.singularityPower || 1;
+        const singularityMultiplier = 1 + (gameState.singularityPoints * 0.05 * singularityPower);
         const prestigeBonus = 1 + (gameState.metaData * 0.02 * singularityMultiplier);
         const clickAlgBonus = Math.pow(UPGRADES.clickAlgorithm.power, gameState.upgradeLevels.clickAlgorithm);
         
@@ -82,7 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let fps = (gameState.upgradeLevels.drones * UPGRADES.drones.power * finalMultipliers.drones);
         fps += (gameState.upgradeLevels.nanobots * UPGRADES.nanobots.power * finalMultipliers.nanobots);
         
-        fragmentsPerSecond = fps * prestigeBonus * finalMultipliers.global;
+        const protocolMultiplier = gameState.protocolActiveTimers.overload > 0 ? PROTOCOLS.overload.multiplier : 1;
+        fragmentsPerSecond = fps * prestigeBonus * finalMultipliers.global * protocolMultiplier;
         
         const heatSinkBonus = gameState.upgradeLevels.heatSink * UPGRADES.heatSink.power;
         maxCoreHeat = (100 + heatSinkBonus) * finalMultipliers.maxHeat;
@@ -100,10 +117,88 @@ document.addEventListener('DOMContentLoaded', () => {
             spawnRandomEvent();
         }
 
+        updateProtocols(delta);
         checkStoryUnlocks();
         checkAchievements();
         updateUI();
         updateVisibleUpgradesPanel();
+    }
+    
+    // --- LÓGICA DE PROTOCOLOS (CORREGIDA) ---
+    function updateProtocolUI() {
+        // Sobrecarga
+        const overloadBtn = dom['protocol-overload-button'];
+        const overloadTimer = overloadBtn.querySelector('.protocol-cooldown-timer');
+        const isOverloadActive = gameState.protocolActiveTimers.overload > 0;
+        const isOverloadOnCooldown = gameState.protocolCooldowns.overload > 0;
+
+        overloadBtn.classList.toggle('active', isOverloadActive);
+        dom['data-core'].classList.toggle('core-overloaded', isOverloadActive);
+
+        if (isOverloadOnCooldown) {
+            overloadBtn.classList.add('on-cooldown');
+            overloadBtn.disabled = true;
+            overloadTimer.textContent = `${Math.ceil(gameState.protocolCooldowns.overload)}s`;
+        } else {
+            overloadBtn.classList.remove('on-cooldown');
+            overloadBtn.disabled = false;
+            overloadTimer.textContent = '';
+        }
+
+        // Enfriamiento Cuántico
+        const coolingBtn = dom['protocol-quantum-cooling-button'];
+        const coolingTimer = coolingBtn.querySelector('.protocol-cooldown-timer');
+        const isCoolingActive = gameState.protocolActiveTimers.quantumCooling > 0;
+        const isCoolingOnCooldown = gameState.protocolCooldowns.quantumCooling > 0;
+
+        coolingBtn.classList.toggle('active', isCoolingActive);
+        dom['data-core'].classList.toggle('core-quantum-cooled', isCoolingActive);
+        
+        if (isCoolingOnCooldown) {
+            coolingBtn.classList.add('on-cooldown');
+            coolingBtn.disabled = true;
+            coolingTimer.textContent = `${Math.ceil(gameState.protocolCooldowns.quantumCooling)}s`;
+        } else {
+            coolingBtn.classList.remove('on-cooldown');
+            coolingBtn.disabled = false;
+            coolingTimer.textContent = '';
+        }
+    }
+
+    function updateProtocols(delta) {
+        let needsRecalculation = false;
+
+        // Decrementar temporizadores activos
+        if (gameState.protocolActiveTimers.overload > 0) {
+            gameState.protocolActiveTimers.overload -= delta;
+            if (gameState.protocolActiveTimers.overload <= 0) {
+                gameState.protocolActiveTimers.overload = 0;
+                needsRecalculation = true;
+            }
+        }
+        if (gameState.protocolActiveTimers.quantumCooling > 0) {
+            gameState.protocolActiveTimers.quantumCooling -= delta;
+            if (gameState.protocolActiveTimers.quantumCooling <= 0) {
+                gameState.protocolActiveTimers.quantumCooling = 0;
+            }
+        }
+
+        // Decrementar enfriamientos
+        if (gameState.protocolCooldowns.overload > 0) {
+            gameState.protocolCooldowns.overload -= delta;
+            if (gameState.protocolCooldowns.overload < 0) gameState.protocolCooldowns.overload = 0;
+        }
+        if (gameState.protocolCooldowns.quantumCooling > 0) {
+            gameState.protocolCooldowns.quantumCooling -= delta;
+            if (gameState.protocolCooldowns.quantumCooling < 0) gameState.protocolCooldowns.quantumCooling = 0;
+        }
+
+        // Actualizar la UI después de la lógica
+        updateProtocolUI();
+
+        if (needsRecalculation) {
+            recalculateAllStats();
+        }
     }
     
     // --- RENDERIZADO Y UI ---
@@ -112,7 +207,8 @@ document.addEventListener('DOMContentLoaded', () => {
         dom['fragments-per-second'].textContent = `${formatNumber(fragmentsPerSecond)} / s`;
         dom['heat-bar-fill'].style.width = `${Math.min(100, (coreHeat / maxCoreHeat) * 100)}%`;
         dom['data-core'].classList.toggle('overheated', coreHeat >= maxCoreHeat);
-        const singularityMultiplier = 1 + (gameState.singularityPoints * 0.05);
+        const singularityPower = (gameState.multipliers.singularityPower || 1);
+        const singularityMultiplier = 1 + (gameState.singularityPoints * 0.05 * singularityPower);
         dom['singularity-points-display'].textContent = `Puntos Sing.: ${gameState.singularityPoints} (Bono x${singularityMultiplier.toFixed(2)})`;
         dom['meta-data-display'].textContent = `Metadatos: ${formatNumber(gameState.metaData)} (+${(gameState.metaData * 0.02 * singularityMultiplier * 100).toFixed(2)}% Bonus)`;
 
@@ -155,6 +251,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function initializeGame() {
         loadGame();
 
+        if (gameState.gameFinished && dom['simulations-button']) {
+            dom['simulations-button'].classList.remove('hidden');
+        }
+
         if (gameState.lastSaveTimestamp) {
             const now = Date.now();
             const offlineTimeInSeconds = (now - gameState.lastSaveTimestamp) / 1000;
@@ -178,11 +278,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 playAudio(dom['game-music']);
             }
             if (coreHeat >= maxCoreHeat) return;
-            coreHeat += HEAT_PER_CLICK;
-            const earned = clickPower;
+
+            if (gameState.protocolActiveTimers.quantumCooling <= 0) {
+                coreHeat += HEAT_PER_CLICK;
+            }
+            
+            let earned = clickPower;
+            if (gameState.unlockedStoryIds.has('log_008')) {
+                earned += fragmentsPerSecond * 0.001;
+            }
+
             gameState.fragments += earned;
             gameState.stats.totalFragments += earned;
             gameState.stats.totalClicks++;
+
             const fb = document.createElement('div');
             fb.className = 'click-feedback';
             fb.textContent = `+${formatNumber(earned)}`;
@@ -193,6 +302,34 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => fb.remove(), 1500);
         });
 
+        // Event Listeners para botones de protocolo (CORREGIDOS)
+        dom['protocol-overload-button'].addEventListener('click', () => {
+            if (gameState.protocolCooldowns.overload <= 0) {
+                gameState.protocolActiveTimers.overload = PROTOCOLS.overload.duration;
+                gameState.protocolCooldowns.overload = PROTOCOLS.overload.cooldown;
+                
+                recalculateAllStats();
+                updateProtocolUI();
+                showToast("Protocolo Sobrecarga Activado!");
+            }
+        });
+
+        dom['protocol-quantum-cooling-button'].addEventListener('click', () => {
+            if (gameState.protocolCooldowns.quantumCooling <= 0) {
+                gameState.protocolActiveTimers.quantumCooling = PROTOCOLS.quantumCooling.duration;
+                gameState.protocolCooldowns.quantumCooling = PROTOCOLS.quantumCooling.cooldown;
+
+                updateProtocolUI();
+                showToast("Enfriamiento Cuántico Iniciado!");
+            }
+        });
+
+        if (dom['simulations-button']) {
+            dom['simulations-button'].addEventListener('click', () => {
+                window.location.href = 'menu.html';
+            });
+        }
+        
         const panels = ['upgrades', 'achievements', 'archives', 'system', 'stats', 'options'];
         panels.forEach(p => {
             if (dom[`${p}-button`]) {
@@ -217,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        ['close-story-modal-button', 'close-offline-modal-button'].forEach(id => {
+        ['close-story-modal-button', 'close-offline-modal-button', 'close-end-game-button'].forEach(id => {
             if (dom[id]) dom[id].onclick = () => dom[id].closest('.modal-overlay').classList.remove('visible');
         });
 
@@ -251,6 +388,8 @@ document.addEventListener('DOMContentLoaded', () => {
             recalculateAllStats();
         });
 
+        // Sincronizar UI y luego calcular todo antes de empezar el juego
+        updateProtocolUI();
         recalculateAllStats();
         renderAllPanels();
         setInterval(gameTick, TICK_RATE);
@@ -277,9 +416,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (savedGame) { 
             const loaded = JSON.parse(savedGame); 
-            // Crear un nuevo estado inicial para asegurar que todas las propiedades existen
             const freshState = getInitialGameState();
-            // Sobrescribir el estado fresco con los datos guardados
             Object.keys(freshState).forEach(key => { 
                 if (loaded[key] !== undefined) { 
                     if (['unlockedStoryIds', 'unlockedMilestones', 'achievements'].includes(key)) { 
@@ -342,7 +479,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 achievements: gameState.achievements,
                 knowledgeShards: gameState.knowledgeShards,
-                skillLevels: gameState.skillLevels
+                skillLevels: gameState.skillLevels,
+                multipliers: { ...gameState.multipliers },
+                gameFinished: gameState.gameFinished
             };
             const meta = gameState.metaData + gain; 
             gameState = getInitialGameState(); 
@@ -362,7 +501,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 achievements: gameState.achievements,
                 knowledgeShards: gameState.knowledgeShards,
-                skillLevels: gameState.skillLevels
+                skillLevels: gameState.skillLevels,
+                multipliers: { ...gameState.multipliers },
+                gameFinished: gameState.gameFinished
             };
             const sing = gameState.singularityPoints + gain; 
             gameState = getInitialGameState(); 
@@ -441,7 +582,25 @@ document.addEventListener('DOMContentLoaded', () => {
     function showToast(msg) { dom['notification-toast'].textContent = msg; dom['notification-toast'].classList.add('show'); setTimeout(() => dom['notification-toast'].classList.remove('show'), 3000); }
     function playAudio(audioEl) { if (!audioEl) return; audioEl.currentTime = 0; audioEl.play().catch(()=>{}); }
     function updateAudioVolume() { dom['game-music'].volume = dom['music-volume'].value; dom['upgrade-sound'].volume = dom['sfx-volume'].value; }
-    function checkStoryUnlocks() { Object.keys(STORY_MILESTONES).forEach(id => { const m = STORY_MILESTONES[id]; if (!gameState.unlockedStoryIds.has(id) && gameState.stats.totalFragments >= m.unlock) { gameState.unlockedStoryIds.add(id); m.apply(gameState); recalculateAllStats(); showToast(`Nuevo Archivo: ${m.title}`); } }); }
+    
+    function checkStoryUnlocks() {
+        Object.keys(STORY_MILESTONES).forEach(id => {
+            const m = STORY_MILESTONES[id];
+            if (!gameState.unlockedStoryIds.has(id) && gameState.stats.totalFragments >= m.unlock) {
+                gameState.unlockedStoryIds.add(id);
+                m.apply(gameState);
+                recalculateAllStats();
+                showToast(`Nuevo Archivo: ${m.title}`);
+    
+                if (id === 'log_009') {
+                    gameState.gameFinished = true;
+                    if (dom['end-game-overlay']) dom['end-game-overlay'].classList.add('visible');
+                    if (dom['simulations-button']) dom['simulations-button'].classList.remove('hidden');
+                }
+            }
+        });
+    }
+
     function checkAchievements() { const check = (id, cond) => { if (!gameState.achievements.has(id) && cond) { gameState.achievements.add(id); showToast(`Logro: ${ACHIEVEMENTS[id].name}`); } }; check('click1', gameState.stats.totalClicks > 0); check('fragments1k', gameState.fragments >= 1e3); check('fragments1m', gameState.fragments >= 1e6); check('prestige1', gameState.stats.prestigeCount > 0); check('drones100', gameState.upgradeLevels.drones >= 100); check('overheat', coreHeat >= maxCoreHeat); check('ascend1', gameState.stats.ascensionCount > 0); }
     
     function renderUpgrades() {

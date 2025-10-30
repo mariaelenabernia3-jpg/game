@@ -49,7 +49,6 @@ body {
 
 #stats-container { padding: 0.5rem 1rem; text-align: center; border-bottom: 1px solid var(--color-text); }
 #core-container { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
-/* MODIFICADO PARA MEJOR RESPONSIVIDAD */
 #controls-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 5px; padding: 0.5rem; background-color: #111; border-top: 1px solid var(--color-text); }
 
 .meta-data-text { color: var(--color-core); text-shadow: 0 0 5px var(--glow-color); margin: 0 0 0.25rem 0; font-weight: bold; height: 1em; font-size: 0.9rem; }
@@ -80,13 +79,15 @@ body {
 .panel { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; transform: translateY(100%); transition: transform 0.4s ease-in-out; z-index: 10; text-align: center; padding: 1rem;}
 .panel.visible { transform: translateY(0); }
 .panel h2 { margin: 2rem 0 1.5rem 0; }
-.panel-list { height: calc(100% - 150px); overflow-y: auto; text-align: left; padding: 0 5px;}
+.panel-list { height: calc(100% - 100px); overflow-y: auto; text-align: left; padding: 0 5px; }
+.upgrades-top-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 0 5px; }
+.panel-list.with-top-controls { height: calc(100% - 150px); }
 .close-button-x { position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--color-text); font-size: 1.5rem; cursor: pointer; z-index: 5; }
 
-.upgrade-item { display: flex; justify-content: space-between; align-items: center; background-color: #1a1a1a; border: 1px solid var(--color-text); padding: 0.75rem; margin-bottom: 0.75rem; }
-.upgrade-info { text-align: left; margin-right: 1rem;}
-.upgrade-info h4, .archive-item h4, .achievement-item h4 { margin: 0 0 0.25rem 0; color: var(--color-highlight); }
-.upgrade-info p, .archive-item p, .achievement-item p { margin: 0; font-size: 0.8rem; color: #ccc; }
+.upgrade-item, .singularity-upgrade-item { display: flex; justify-content: space-between; align-items: center; background-color: #1a1a1a; border: 1px solid var(--color-text); padding: 0.75rem; margin-bottom: 0.75rem; }
+.upgrade-info, .singularity-upgrade-info { text-align: left; margin-right: 1rem;}
+.upgrade-info h4, .archive-item h4, .achievement-item h4, .singularity-upgrade-info h4 { margin: 0 0 0.25rem 0; color: var(--color-highlight); }
+.upgrade-info p, .archive-item p, .achievement-item p, .singularity-upgrade-info p { margin: 0; font-size: 0.8rem; color: #ccc; }
 .archive-item { background-color: #1a1a1a; border: 1px solid #555; color: #555; padding: 1rem; margin-bottom: 0.75rem; cursor: not-allowed; text-align: left;}
 .archive-item.unlocked { border-color: var(--color-text); color: var(--color-text); cursor: pointer; }
 .achievement-item { background-color: #1a1a1a; border-left: 3px solid #555; padding: 0.75rem; margin-bottom: 0.75rem; opacity: 0.6; text-align: left;}
@@ -96,6 +97,7 @@ body {
 #stats-list span { color: var(--color-highlight); font-weight: bold; float: right; }
 .options-container { text-align: left; }
 .option-item { display: flex; justify-content: space-between; align-items: center; margin: 1rem 0; }
+.option-item.hidden { display: none; }
 .slider { width: 60%; }
 
 #click-feedback-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
@@ -108,45 +110,37 @@ body {
 
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
 .modal-overlay.visible { opacity: 1; pointer-events: auto; }
-.modal-content { background-color: #111; border: 1px solid var(--color-text); padding: 1.5rem; width: 90%; max-width: 500px; }
+.modal-content { background-color: #111; border: 1px solid var(--color-text); padding: 1.5rem; width: 90%; max-width: 500px; text-align: center; }
 #awakening-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; display: flex; justify-content: center; align-items: center; z-index: 250; opacity: 1; transition: opacity 2s ease-in-out; }
 #awakening-overlay:not(.visible) { opacity: 0; pointer-events: none; }
 .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: var(--color-core); color: var(--color-background); padding: 1rem; border-radius: 5px; z-index: 300; opacity: 0; transition: all 0.5s; pointer-events: none; font-weight: bold; }
 .toast.show { opacity: 1; bottom: 40px; }
+.hidden-by-panel { display: none !important; }
 
-/* --- REGLA AÑADIDA PARA OCULTAR LA ANOMALÍA --- */
-.hidden-by-panel {
-    display: none !important;
-}
+#buy-amount-selector { display: flex; justify-content: center; gap: 5px; }
+.buy-amount-btn { font-family: inherit; font-size: 0.9rem; background: none; border: 1px solid var(--color-text); color: var(--color-text); padding: 0.5rem 1rem; cursor: pointer; transition: all 0.2s; }
+.buy-amount-btn.active, .buy-amount-btn:hover { background-color: var(--color-text); color: var(--color-background); box-shadow: 0 0 5px var(--color-text); }
+.nav-button-link { text-decoration: none; display: contents; }
+.nav-button-link button { width: 100%; }
 
-/* --- ESTILOS PARA EL SELECTOR DE COMPRA --- */
-#buy-amount-selector {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 1rem;
-}
-.buy-amount-btn {
-    font-family: inherit;
-    font-size: 0.9rem;
-    background: none;
-    border: 1px solid var(--color-text);
-    color: var(--color-text);
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-.buy-amount-btn.active, .buy-amount-btn:hover {
-    background-color: var(--color-text);
-    color: var(--color-background);
-    box-shadow: 0 0 5px var(--color-text);
-}
+#protocols-container { display: flex; justify-content: center; gap: 15px; margin-top: 20px; width: 100%; }
+.protocol-button { background-color: #1a1a1a; border: 2px solid var(--color-text); color: var(--color-text); width: 120px; height: 60px; font-family: inherit; font-size: 1rem; cursor: pointer; position: relative; overflow: hidden; transition: all 0.3s; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+.protocol-button:hover:not(:disabled) { box-shadow: 0 0 10px var(--color-text); transform: translateY(-2px); }
+.protocol-icon { font-size: 1.2rem; }
+.protocol-name { font-size: 0.8rem; }
+.protocol-cooldown-timer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); color: var(--color-highlight); font-size: 1.5rem; font-weight: bold; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+.protocol-button.on-cooldown { border-color: #555; color: #555; cursor: not-allowed; filter: grayscale(80%); }
+.protocol-button.on-cooldown .protocol-cooldown-timer { opacity: 1; }
+.protocol-button.active { border-color: var(--color-core); box-shadow: 0 0 15px var(--glow-color); animation: pulse-active 1.5s infinite; }
+@keyframes pulse-active { 50% { transform: scale(1.05); } }
+#data-core.core-overloaded { box-shadow: 0 0 40px var(--color-text), inset 0 0 25px rgba(255,255,255,0.7); animation: pulse 1s infinite ease-in-out; }
+#data-core.core-quantum-cooled { box-shadow: 0 0 40px var(--color-highlight), inset 0 0 25px var(--color-core); animation: pulse 2s infinite ease-in-out; }
 
-/* --- ESTILO AÑADIDO PARA EL ENLACE DEL BOTÓN DE HABILIDADES --- */
-.nav-button-link {
-    text-decoration: none;
-    display: contents; /* Hace que el 'a' no afecte el layout del grid */
-}
-.nav-button-link button {
-    width: 100%;
-}
+#singularity-shop-section h2 { margin-top: 2rem; }
+.singularity-upgrade-item button { width: 120px; flex-shrink: 0; }
+.singularity-upgrade-item button.purchased { background-color: var(--color-core); color: var(--color-background); border-color: var(--color-core); cursor: default; }
+.singularity-upgrade-item button.purchased:hover { box-shadow: none; }
+
+#end-game-overlay .modal-content { border: 2px solid var(--color-core); box-shadow: 0 0 25px var(--glow-color); }
+#end-game-title { color: var(--color-core); text-shadow: 0 0 10px var(--glow-color); }
+.end-game-thanks { font-weight: bold; color: var(--color-highlight); }

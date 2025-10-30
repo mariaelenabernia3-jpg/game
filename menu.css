@@ -7,6 +7,8 @@
     --glow-color: rgba(11, 255, 118, 0.5);
     --danger-color: #ff2d2d;
     --danger-glow: rgba(255, 45, 45, 0.5);
+    --core-color: #0bdeff;
+    --core-glow: rgba(11, 222, 255, 0.5);
 }
 
 body {
@@ -33,6 +35,8 @@ body::before {
     background-color: rgba(0, 0, 0, 0.6);
     z-index: -1;
 }
+
+.hidden { display: none !important; }
 
 .menu-container {
     display: flex;
@@ -162,9 +166,6 @@ h1 {
     cursor: pointer;
     transition: all 0.3s;
 }
-.toggle-button:disabled {
-    cursor: not-allowed;
-}
 .toggle-button.toggled-on {
     border-color: var(--color-text);
     color: var(--color-text);
@@ -183,6 +184,53 @@ h1 {
     background-color: var(--danger-glow);
     color: #fff;
     box-shadow: 0 0 10px var(--danger-glow);
+}
+
+.challenges-list {
+    max-height: 50vh;
+    overflow-y: auto;
+    text-align: left;
+    margin-top: 1rem;
+}
+.challenge-item {
+    background-color: #1a1a1a;
+    border-left: 3px solid var(--core-color);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+.challenge-item.completed {
+    border-left-color: var(--color-text);
+}
+.challenge-info h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--core-color);
+}
+.challenge-item.completed .challenge-info h4 {
+    color: var(--color-text);
+}
+.challenge-info p {
+    margin: 0.25rem 0;
+    font-size: 0.8rem;
+}
+.challenge-info strong {
+    color: var(--color-highlight);
+}
+.challenge-actions {
+    margin-top: 1rem;
+    text-align: right;
+}
+.start-challenge-button {
+    font-family: inherit;
+    background: none;
+    border: 1px solid var(--core-color);
+    color: var(--core-color);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
+.start-challenge-button:disabled {
+    border-color: var(--color-text);
+    color: var(--color-text);
+    cursor: not-allowed;
 }
 
 @keyframes fadeIn { to { opacity: 1; } }
