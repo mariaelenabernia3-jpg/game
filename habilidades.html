@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habilidades - Archivista Cósmico</title>
+    <!-- Reutilizamos estilos base del juego principal -->
+    <link rel="stylesheet" href="juego.css"> 
+    <!-- Estilos específicos y responsivos para esta página -->
+    <link rel="stylesheet" href="habilidades.css"> 
+</head>
+<body>
+    <div id="game-wrapper">
+        <div id="game-container">
+            <header id="skill-header">
+                <h2>Árbol de Habilidades Permanentes</h2>
+                <div id="currency-display">
+                    <!-- Muestra las 3 monedas relevantes -->
+                    <p class="currency-item">Fragmentos: <span id="fragments-balance">0</span></p>
+                    <p class="currency-item">Metadatos: <span id="metadata-balance">0</span></p>
+                    <p class="currency-item">Conocimiento: <span id="knowledge-shards-balance">0</span> ✨</p>
+                </div>
+            </header>
+
+            <main id="skill-main">
+                <!-- Sección de intercambio rediseñada -->
+                <div id="exchange-section">
+                    <h3>Sintetizar Conocimiento</h3>
+                    <p>Usa tus Fragmentos para sintetizar Fragmentos de Conocimiento permanentes.</p>
+                    <button id="buy-shard-button" class="action-button">Cargando coste...</button>
+                </div>
+
+                <hr>
+
+                <div id="skill-tree-container" class="panel-list">
+                    <!-- El árbol de habilidades se generará aquí con JavaScript -->
+                </div>
+            </main>
+            
+            <nav id="skill-nav">
+                <button onclick="window.close();" class="action-button">Cerrar Pestaña</button>
+            </nav>
+        </div>
+    </div>
+    
+    <script src="habilidades.js"></script>
+</body>
+</html>

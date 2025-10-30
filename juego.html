@@ -32,22 +32,32 @@
                 <button id="achievements-button">🏆 Logros</button>
                 <button id="archives-button">📖 Archivos</button>
                 <button id="system-button">🌌 Sistema</button>
+                <a href="habilidades.html" target="_blank" class="nav-button-link"><button>✨ Habilidades</button></a>
                 <button id="stats-button">📊 Stats</button>
                 <button id="options-button">🔧 Opciones</button>
             </nav>
         </div>
     </div>
 
-    <!-- PANELES Y MODALES -->
-    <div id="upgrades-panel" class="panel"><button id="close-upgrades-button" class="close-button-x">X</button><h2>Mejoras de Procesamiento</h2><div id="upgrades-list" class="panel-list"></div></div>
+    <!-- PANELES Y MODALES (Sin cambios) -->
+    <div id="upgrades-panel" class="panel">
+        <button id="close-upgrades-button" class="close-button-x">X</button>
+        <h2>Mejoras de Procesamiento</h2>
+        <div id="buy-amount-selector">
+            <button data-amount="1" class="buy-amount-btn active">x1</button>
+            <button data-amount="10" class="buy-amount-btn">x10</button>
+            <button data-amount="100" class="buy-amount-btn">x100</button>
+            <button data-amount="max" class="buy-amount-btn">MAX</button>
+        </div>
+        <div id="upgrades-list" class="panel-list"></div>
+    </div>
     <div id="archives-panel" class="panel"><button id="close-archives-button" class="close-button-x">X</button><h2>Archivos de Memoria</h2><div id="archives-list" class="panel-list"></div></div>
     <div id="achievements-panel" class="panel"><button id="close-achievements-button" class="close-button-x">X</button><h2>Registro de Logros</h2><div id="achievements-list" class="panel-list"></div></div>
     <div id="stats-panel" class="panel"><button id="close-stats-button" class="close-button-x">X</button><h2>Análisis de Sesión</h2><div id="stats-list" class="panel-list"></div></div>
-    
     <div id="options-panel" class="panel">
         <button id="close-options-button" class="close-button-x">X</button>
         <h2>Opciones del Sistema</h2>
-        <div class="options-container">
+        <div class="options-container panel-list">
             <div class="option-item"><label for="music-volume">Música:</label><input type="range" id="music-volume" min="0" max="1" step="0.05" class="slider"></div>
             <div class="option-item"><label for="sfx-volume">Efectos:</label><input type="range" id="sfx-volume" min="0" max="1" step="0.05" class="slider"></div>
             <hr>
@@ -55,7 +65,6 @@
             <button id="wipe-save-button" class="danger-button">Borrar Progreso</button>
         </div>
     </div>
-
     <div id="system-panel" class="panel">
         <button id="close-system-button" class="close-button-x">X</button>
         <div class="panel-list">
@@ -76,8 +85,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Modales -->
     <div id="story-modal" class="modal-overlay"><div class="modal-content"><button id="close-story-modal-button" class="close-button-x">X</button><h3 id="story-modal-title"></h3><p id="story-modal-text"></p><hr><p id="story-modal-reward" class="reward-text"></p></div></div>
     <div id="offline-modal" class="modal-overlay"><div class="modal-content"><button id="close-offline-modal-button" class="close-button-x">X</button><h3>Protocolo de Reactivación</h3><p>Mientras estabas desconectado...</p><h2 id="offline-fragments-earned" class="highlight-text"></h2><p>han sido añadidos a tus archivos.</p></div></div>
     <div id="notification-toast" class="toast"></div>
